@@ -1,0 +1,12 @@
+# Build output
+build/
+karla
+ 
+# Object & dependency files
+*.o
+*.d
+ 
+# Editor / OS cruft
+*.swp
+.DS_Store
+.vscode/
