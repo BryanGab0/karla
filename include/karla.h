@@ -1,16 +1,6 @@
 #ifndef KARLA_H
 #define KARLA_H
 
-/*
- * karla.h - Shared declarations for the karla shell.
- *
- * Central header included by every translation unit: pulls in the system
- * headers, defines project-wide limits and the Command type, and declares
- * the public interface of each module.
- */
- 
-/* Must precede all includes: unlocks POSIX functions (strdup, sigaction,
- * setenv, ...) that the standard C headers hide under strict -std modes. */
 #define _POSIX_C_SOURCE 200809L
 
 #include <stdio.h>
@@ -23,26 +13,23 @@
 #include <fcntl.h>
 #include <signal.h>
 
-#define MAX_INPUT     1024   /* max bytes per input line   */
-#define MAX_ARGS      64     /* max tokens per command     */
-#define MAX_HISTORY   50     /* history ring-buffer size   */
+#define MAX_INPUT     1024
+#define MAX_ARGS      64
+#define MAX_HISTORY   50
 #define PROMPT        "karla$ "
 
-/* ANSI colour escapes */
 #define CLR_GREEN   "\033[1;32m"
 #define CLR_CYAN    "\033[1;36m"
 #define CLR_RED     "\033[1;31m"
 #define CLR_RESET   "\033[0m"
 
-/* A single parsed command line, produced by the parser and consumed
- * by the executor. Zero-initialised means "no redirection, foreground". */
 typedef struct {
-    char *argv[MAX_ARGS];   /* NULL-terminated argument vector */
+    char *argv[MAX_ARGS];
     int   argc;
-    char *input_file;       /* target of '<', or NULL          */
-    char *output_file;      /* target of '>'/'>>', or NULL     */
-    int   append;           /* 1 = '>>' (append), 0 = '>' (truncate) */
-    int   background;       /* 1 = trailing '&'                */
+    char *input_file;
+    char *output_file;
+    int   append;
+    int   background;
 } Command;
 
 /* parser.c */
@@ -67,4 +54,4 @@ char *read_line(void);
 void  trim_newline(char *s);
 void  die(const char *msg);
 
-#endif /* KARLA_H */
+#endif

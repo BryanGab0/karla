@@ -1,12 +1,5 @@
 #include "karla.h"
 
-/*
- * builtins.c - Commands that must run inside the shell process.
- *
- * These cannot be external programs: cd/export must affect the shell's own
- * state, and pwd/help/echo/history are trivial enough to handle directly.
- */
-
 static const char *BUILTINS[] = {
     "cd", "pwd", "help", "history", "echo", "export", NULL
 };
@@ -18,7 +11,6 @@ int is_builtin(const char *name) {
     return 0;
 }
 
-/* cd [dir] - defaults to $HOME when no argument is given. */
 static int builtin_cd(Command *cmd) {
     const char *dir = cmd->argc > 1 ? cmd->argv[1] : getenv("HOME");
     if (!dir) {
@@ -59,19 +51,16 @@ static int builtin_help(void) {
     return 0;
 }
 
-/* Prints argv[1..], space-separated, with a trailing newline. */
 static int builtin_echo(Command *cmd) {
     for (int i = 1; i < cmd->argc; i++) {
         printf("%s", cmd->argv[i]);
-        if (i + 1 < cmd->argc)      /* space between, not after, args */
+        if (i + 1 < cmd->argc)
             printf(" ");
     }
     printf("\n");
     return 0;
 }
 
-/* export VAR=VALUE - splits on '=' in place, then restores the byte so the
- * original argv string is left intact. */
 static int builtin_export(Command *cmd) {
     if (cmd->argc < 2) {
         fprintf(stderr, "export: usage: export VAR=VALUE\n");
@@ -82,13 +71,13 @@ static int builtin_export(Command *cmd) {
         fprintf(stderr, "export: expected VAR=VALUE format\n");
         return 1;
     }
-    *eq = '\0';                     /* temporarily split into name / value */
+    *eq = '\0';
     if (setenv(cmd->argv[1], eq + 1, 1) < 0) {
         perror("setenv");
         *eq = '=';
         return 1;
     }
-    *eq = '=';                      /* restore */
+    *eq = '=';
     return 0;
 }
 

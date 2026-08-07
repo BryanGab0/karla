@@ -1,11 +1,5 @@
 #include "karla.h"
 
-/*
- * executor.c - Runs commands via fork/exec, plus I/O redirection.
- */
- 
-/* Applies the redirections recorded in cmd by pointing stdin/stdout at the
- * requested files. Called in the child, so exit() on error is safe. */
 void setup_redirections(Command *cmd) {
     if (cmd->input_file) {
         int fd = open(cmd->input_file, O_RDONLY);
@@ -13,7 +7,7 @@ void setup_redirections(Command *cmd) {
             perror(cmd->input_file);
             exit(EXIT_FAILURE);
         }
-        dup2(fd, STDIN_FILENO);     /* fd 0 now reads from the file */
+        dup2(fd, STDIN_FILENO);
         close(fd);
     }
 
@@ -24,13 +18,12 @@ void setup_redirections(Command *cmd) {
             perror(cmd->output_file);
             exit(EXIT_FAILURE);
         }
-        dup2(fd, STDOUT_FILENO);    /* fd 1 now writes to the file */
+        dup2(fd, STDOUT_FILENO);
         close(fd);
     }
 }
 
 int execute_command(Command *cmd) {
-    /* Builtins run in the shell itself (no fork). */
     if (is_builtin(cmd->argv[0]))
         return run_builtin(cmd);
 
@@ -43,18 +36,17 @@ int execute_command(Command *cmd) {
 
     if (pid == 0) {
         /* Child */
-        signal(SIGINT, SIG_DFL);    /* undo the shell's SIGINT ignore */
+        signal(SIGINT, SIG_DFL);
         setup_redirections(cmd);
         execvp(cmd->argv[0], cmd->argv);
 
-        /* Only reached if execvp failed (e.g. command not found). */
         fprintf(stderr, CLR_RED "karla: %s: %s\n" CLR_RESET, cmd->argv[0], strerror(errno));
         exit(EXIT_FAILURE);
     }
 
     /* Parent */
     if (cmd->background) {
-        printf("[bg] pid %d\n", pid);   /* don't wait; reaped by SIGCHLD */
+        printf("[bg] pid %d\n", pid);
     } else {
         int status;
         waitpid(pid, &status, 0);
